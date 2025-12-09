@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTB: Motor Torpedo Boats</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="ui-panel">
+            <h1>MTB Commander</h1>
+            <div id="turn-info">
+                Turn: <span id="turn-number">1</span> | Phase: <span id="phase-name">Orders</span>
+            </div>
+            <div id="controls">
+                <button id="next-phase-btn">Next Phase</button>
+                <div id="ship-orders" class="hidden">
+                    <h3>Ship Orders</h3>
+                    <p id="selected-ship-name">Select a ship</p>
+                    <label>Speed (knots): <input type="number" id="speed-input" min="0" max="40"></label>
+                    <label>Turn (points): <input type="number" id="turn-input" min="-4" max="4" value="0"></label>
+                    <button id="fire-btn">Fire Weapons</button>
+                    <button id="torpedo-btn">Fire Torpedo</button>
+                    <button id="depth-btn">Depth Charge</button>
+                    <label>Visibility:
+                        <select id="visibility-select">
+                            <option value="CLEAR">Clear</option>
+                            <option value="MIST">Mist</option>
+                            <option value="FOG">Fog</option>
+                            <option value="NIGHT">Night</option>
+                        </select>
+                    </label>
+                    <label>DC Depth:
+                        <select id="dc-depth-select">
+                            <option value="SHALLOW">Shallow</option>
+                            <option value="DEEP">Deep</option>
+                        </select>
+                    </label>
+                    <button id="illum-btn">Illuminate Target</button>
+                </div>
+            </div>
+            <div id="log"></div>
+        </div>
+        <canvas id="game-canvas" width="800" height="600"></canvas>
+    </div>
+    <script src="mtb_data.js"></script>
+    <script src="mtb_game.js"></script>
+</body>
+</html>
+
