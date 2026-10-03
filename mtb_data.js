@@ -10,16 +10,16 @@ const SHIP_TYPES = {
         depthCharges: 0,
         weapons: { broadside: 30, forward: 20, astern: 40 },
         color: "#c0392b", // Red base
-        size: { width: 20, length: 40 },
+        size: { width: 14, length: 35 },
         starLongRange: true,
         fireRiskMod: -2,
         damageBands: [
-            { min: 60, max: 75, speedDice: 1, weapons: { broadside: 30, forward: 20, astern: 40 }, actions: ["fireRisk", "torpedoDamage"] },
+            { min: 60, max: 75, speedDice: 1, weapons: { broadside: 30, forward: 20, astern: 40 }, actions: [] },
             { min: 50, max: 59, speedDice: 1, weapons: { broadside: 30, forward: 20, astern: 35 }, actions: [] },
-            { min: 40, max: 49, speedDice: 1, weapons: { broadside: 25, forward: 15, astern: 35 }, actions: [] },
-            { min: 30, max: 39, speedDice: 2, weapons: { broadside: 20, forward: 15, astern: 30 }, actions: [] },
-            { min: 20, max: 29, speedDice: 3, weapons: { broadside: 15, forward: 10, astern: 25 }, actions: [] },
-            { min: 10, max: 19, speedDice: 3, weapons: { broadside: 10, forward: 5, astern: 15 }, actions: [] },
+            { min: 40, max: 49, speedDice: 1, weapons: { broadside: 25, forward: 15, astern: 35 }, actions: ["fireRisk"] },
+            { min: 30, max: 39, speedDice: 2, weapons: { broadside: 20, forward: 15, astern: 30 }, actions: ["torpedoDamage"] },
+            { min: 20, max: 29, speedDice: 3, weapons: { broadside: 15, forward: 10, astern: 25 }, actions: ["fireRisk"] },
+            { min: 10, max: 19, speedDice: 3, weapons: { broadside: 10, forward: 5, astern: 15 }, actions: ["fireRisk", "turnAway"] },
             { min: 1,  max: 9,  speedDice: 0, weapons: { broadside: 5, forward: 0, astern: 10 }, actions: ["deadInWater"] }
         ]
     },
@@ -33,7 +33,7 @@ const SHIP_TYPES = {
         depthCharges: 22,
         weapons: { broadside: 100, forward: 80, astern: 80 },
         color: "#c0392b",
-        size: { width: 22, length: 45 },
+        size: { width: 17, length: 54 },
         starLongRange: true,
         fireRiskMod: -2,
         damageBands: [
@@ -56,7 +56,7 @@ const SHIP_TYPES = {
         depthCharges: 0,
         weapons: { broadside: 40, forward: 30, astern: 10 },
         color: "#c0392b",
-        size: { width: 30, length: 60 },
+        size: { width: 19, length: 64 },
         starLongRange: true,
         fireRiskMod: 1,
         damageBands: [
@@ -80,7 +80,7 @@ const SHIP_TYPES = {
         depthCharges: 0,
         weapons: { broadside: 60, forward: 40, astern: 50 },
         color: "#2c3e50", // Black base (dark grey)
-        size: { width: 20, length: 45 },
+        size: { width: 16, length: 54 },
         starLongRange: false,
         fireRiskMod: -2,
         damageBands: [
@@ -104,7 +104,7 @@ const SHIP_TYPES = {
         depthCharges: 4,
         weapons: { broadside: 60, forward: 40, astern: 50 },
         color: "#2c3e50",
-        size: { width: 25, length: 50 },
+        size: { width: 14, length: 63 },
         starLongRange: true,
         fireRiskMod: -1,
         damageBands: [
@@ -128,7 +128,7 @@ const SHIP_TYPES = {
         depthCharges: 6,
         weapons: { broadside: 40, forward: 30, astern: 10 },
         color: "#2c3e50",
-        size: { width: 30, length: 60 },
+        size: { width: 19, length: 64 },
         starLongRange: true,
         fireRiskMod: 1,
         damageBands: [
@@ -150,7 +150,7 @@ const SHIP_TYPES = {
         depthCharges: 0,
         weapons: { broadside: 20, forward: 20, astern: 20 },
         color: "#2c3e50",
-        size: { width: 40, length: 80 },
+        size: { width: 18, length: 70 },
         starLongRange: true,
         fireRiskMod: 1,
         damageBands: [
@@ -171,7 +171,7 @@ const SHIP_TYPES = {
         depthCharges: 0,
         weapons: { broadside: 20, forward: 20, astern: 0 },
         color: "#2c3e50",
-        size: { width: 45, length: 90 },
+        size: { width: 18, length: 92 },
         starLongRange: true,
         fireRiskMod: -3,
         damageBands: [
@@ -179,7 +179,7 @@ const SHIP_TYPES = {
             { min: 100, max: 199, speedDice: 1, weapons: { broadside: 15, forward: 15, astern: 0 }, actions: ["fireRisk"] },
             { min: 50,  max: 99,  speedDice: 0, weapons: { broadside: 10, forward: 10, astern: 0 }, actions: ["fireRisk"] },
             { min: 25,  max: 49,  speedDice: 2, weapons: { broadside: 5, forward: 5, astern: 0 }, actions: ["fireRisk"] },
-            { min: 11,  max: 24,  speedDice: 0, weapons: { broadside: 0, forward: 0, astern: 0 }, actions: ["deadInWater"] }
+            { min: 1,   max: 24,  speedDice: 0, weapons: { broadside: 0, forward: 0, astern: 0 }, actions: ["deadInWater"] }
         ]
     },
     F_LIGHTER: {
@@ -192,7 +192,7 @@ const SHIP_TYPES = {
         depthCharges: 0,
         weapons: { broadside: 50, forward: 70, astern: 40 },
         color: "#2c3e50",
-        size: { width: 30, length: 70 },
+        size: { width: 19, length: 45 },
         starLongRange: true,
         fireRiskMod: 2,
         damageBands: [
