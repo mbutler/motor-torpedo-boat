@@ -34,9 +34,12 @@ const MTBVisuals = {
         }
         const gauge=document.getElementById('buoyancy-fill');
         if(gauge&&game.selectedShip) {
-            const ratio=game.selectedShip.currentBuoyancy/game.selectedShip.startingBuoyancy;
-            gauge.setAttribute('width',String(240*Math.max(0,Math.min(1,ratio))));
-            gauge.setAttribute('fill',ratio<.3?'#a43e32':'#536d69');
+            const ratio=Math.max(0,Math.min(1,game.selectedShip.currentBuoyancy/game.selectedShip.startingBuoyancy));
+            gauge.setAttribute('x','88');
+            gauge.setAttribute('y','5');
+            gauge.setAttribute('height','6');
+            gauge.setAttribute('width',String(168*ratio));
+            gauge.setAttribute('fill',ratio<.3?'#9d342c':'#1c2826');
             document.getElementById('hull-gauge').hidden=!game.identifiedFor(game.viewFaction,game.selectedShip);
         }
         const art=document.getElementById('vessel-art');

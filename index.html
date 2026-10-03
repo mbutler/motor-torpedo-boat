@@ -1,25 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MTB · Coastal Command</title><link rel="stylesheet" href="style.css"></head>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MTB</title>
+<link rel="stylesheet" href="style.css">
+</head>
 <body>
-<header class="masthead"><div class="brand"><span class="brand-mark">MTB</span><div><h1>Coastal Command</h1><p>A pen-and-paper naval encounter</p></div></div><div class="edition">MOTOR TORPEDO BOATS<br><span>Operations table · 1970s edition</span></div></header>
+<div class="table">
+<header class="rail">
+<div class="title-block"><span class="title">MTB</span><span class="subtitle">Motor torpedo boats</span></div>
+<div class="move-block"><span class="move-label">Move</span><span id="turn-number">1</span><span class="move-total">/ 10</span><span id="phase-name">Setup</span></div>
+<div class="chart-tools"><button id="zoom-out" type="button" aria-label="Zoom out">−</button><span id="zoom-label">100%</span><button id="zoom-in" type="button" aria-label="Zoom in">+</button></div>
+</header>
 <main id="game-container">
 <section class="chart-panel" aria-label="Battle chart">
-<div class="chart-heading"><div><span class="eyebrow">Chart No. 01 / Coastal waters</span><h2>The operations table</h2></div><div class="chart-tools"><button id="zoom-out" aria-label="Zoom out">−</button><span id="zoom-label">100%</span><button id="zoom-in" aria-label="Zoom in">+</button></div></div>
 <div id="chart-viewport"><canvas id="game-canvas" width="1600" height="1200" aria-label="Battlefield. Select a counter to issue orders."></canvas></div>
-<div class="chart-caption"><span><i class="fleet-dot british"></i> British fleet <i class="fleet-dot german"></i> German fleet</span><span>Select a counter · Issue orders · Advance the move</span></div>
-<details class="dispatches" open><summary>Signal book <span>Battle dispatches</span></summary><div id="log" role="log" aria-live="polite"></div></details>
 </section>
 <aside id="ui-panel">
-<section class="phase-card"><span class="eyebrow">Combat tracker</span><div id="turn-info"><span class="move-label">MOVE</span><span id="turn-number">1</span><span class="move-total">/ 10</span></div><div id="phase-name">Setup</div><p id="phase-help"></p><button id="next-phase-btn">Begin battle →</button></section>
-<section class="fleet-card"><div class="section-heading"><h2>Command station</h2><span class="ink-star">✳</span></div><label>Commanding <select id="view-faction"><option value="British">British</option><option value="German">German</option></select></label><label>Vessel <select id="fleet-select"></select></label><p id="selection-hint">Select a paper counter on the chart, or choose a vessel above.</p>
-<div id="controls"><div id="ship-orders" class="hidden"><div class="vessel-heading"><img id="vessel-art" alt="Selected vessel's original counter"><div><span class="eyebrow">Vessel record</span><h3 id="selected-ship-name">Select a ship</h3></div></div><svg id="hull-gauge" viewBox="0 0 260 48" role="img" aria-label="Remaining buoyancy gauge"><text x="0" y="10" font-size="8" letter-spacing="1.7">HULL INTEGRITY</text><path d="M1 19L248 18 249 36 0 37Z" fill="none" stroke="currentColor" stroke-width=".8"/><rect id="buoyancy-fill" x="4" y="22" width="240" height="11" fill="#536d69"/><path d="M28 18v19m28-19v19m28-19v19m28-19v19m28-19v19m28-19v19m28-19v19m28-19v19" stroke="#f7f1e4" stroke-width="1"/><text x="0" y="47" font-size="7">0</text><text x="234" y="47" font-size="7">100%</text></svg><p id="ship-status"></p>
-<fieldset class="helm"><legend>Helm orders</legend><div class="paired"><label>Speed <span class="input-unit"><input type="number" id="speed-input" min="0" max="40"><small>kn</small></span></label><label>Turn <span class="input-unit"><input type="number" id="turn-input" min="-9" max="9" value="0"><small>pts</small></span></label></div><p class="field-note">− Port &nbsp; / &nbsp; + Starboard</p><label>Turn timing <select id="turn-timing"><option value="START">Start of move</option><option value="END">End of move</option></select></label><label class="check-label"><input id="ram-order" type="checkbox"> Intentional ram</label></fieldset>
-<fieldset class="weapons"><legend>Combat orders</legend><p class="field-note">Select an enemy counter to set your target.</p><button id="fire-btn">Fire guns</button><div class="attack-row"><select id="torpedo-count" aria-label="Torpedo salvo"><option value="1">1 torpedo</option><option value="2">2 torpedoes</option></select><button id="torpedo-btn">Launch salvo</button></div><div class="attack-row"><select id="dc-depth-select" aria-label="Depth charge depth"><option value="SHALLOW">Shallow</option><option value="DEEP">Deep</option></select><button id="depth-btn">Depth charges</button></div><div class="paired"><button id="sight-btn">Sight contact</button><button id="illum-btn">Illuminate</button></div><button id="cancel-attacks" class="quiet">Cancel attack orders</button></fieldset>
-</div></div></section>
-<details class="battle-settings" open><summary>Battle preparations</summary><label>Scenario <select id="scenario-select"><option value="GERMAN_CONVOY">German convoy</option><option value="BRITISH_CONVOY">British convoy</option><option value="ENCOUNTER">Warship encounter</option></select></label><label>Visibility <select id="visibility-select"><option value="CLEAR">Clear</option><option value="MIST">Mist</option><option value="FOG">Fog</option><option value="NIGHT">Night</option></select></label><label>Omit transport card <select id="omitted-transport"><option value="4">4</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label><div id="setup-controls"><p class="field-note">Select a vessel, then click its starting position on the chart.</p><label>Heading <span class="input-unit"><input id="setup-heading" type="number" min="0" max="359" value="0"><small>°</small></span></label><button id="place-british-patch">Place British visibility patch</button><button id="place-german-patch">Place German visibility patch</button></div><button id="new-game-btn" class="quiet">Reset & set up a new battle</button></details>
-<p class="margin-note">Keep a steady course.</p>
-</aside></main>
-<footer>MTB / A game of coastal actions <span>Original illustrated counters · Automated combat records</span></footer>
-<script src="mtb_data.js"></script><script src="mtb_rules.js"></script><script src="mtb_visuals.js"></script><script src="mtb_game.js"></script>
-</body></html>
+<div class="pad">
+<p id="phase-help"></p>
+<label><span>Side</span><select id="view-faction"><option value="British">British</option><option value="German">German</option></select></label>
+<label><span>Vessel</span><select id="fleet-select"></select></label>
+<p id="selection-hint">Select a counter on the chart.</p>
+<div id="controls">
+<div id="ship-orders" class="hidden">
+<div class="vessel-heading"><img id="vessel-art" alt="Selected counter"><div><h3 id="selected-ship-name">Select a ship</h3>
+<svg id="hull-gauge" viewBox="0 0 260 18" role="img" aria-label="Remaining buoyancy"><text x="0" y="12" font-size="9" font-family="Courier New, monospace">BUOYANCY</text><rect x="87" y="4" width="170" height="8" fill="none" stroke="currentColor"/><rect id="buoyancy-fill" x="88" y="5" width="168" height="6" fill="#1c2826"/></svg>
+</div></div>
+<p id="ship-status"></p>
+<fieldset class="helm"><legend>Course</legend>
+<label><span>Speed</span><span class="input-unit"><input type="number" id="speed-input" min="0" max="40"><small>kn</small></span></label>
+<label><span>Turn</span><span class="input-unit"><input type="number" id="turn-input" min="-9" max="9" value="0"><small>pts</small></span></label>
+<p class="field-note">− port, + starboard.</p>
+<label><span>Turn at</span><select id="turn-timing"><option value="START">Start of move</option><option value="END">End of move</option></select></label>
+<label class="check-label"><input id="ram-order" type="checkbox"> Intentional ram</label>
+</fieldset>
+<fieldset class="weapons"><legend>Weapons</legend>
+<p class="field-note">Select an enemy counter to aim.</p>
+<div class="attack-row"><span>Guns</span><button id="fire-btn" type="button">Fire</button></div>
+<div class="attack-row"><span>Torpedoes</span><span class="line-controls"><select id="torpedo-count" aria-label="Torpedo salvo"><option value="1">1</option><option value="2">2</option></select><button id="torpedo-btn" type="button">Launch</button></span></div>
+<div class="attack-row"><span>Charges</span><span class="line-controls"><select id="dc-depth-select" aria-label="Depth charge depth"><option value="SHALLOW">Shallow</option><option value="DEEP">Deep</option></select><button id="depth-btn" type="button">Drop</button></span></div>
+<div class="attack-row"><span>Sighting</span><button id="sight-btn" type="button">Attempt</button></div>
+<div class="attack-row"><span>Starshell</span><button id="illum-btn" type="button">Illuminate</button></div>
+<button id="cancel-attacks" class="quiet" type="button">Cancel attack orders</button>
+</fieldset>
+</div>
+</div>
+<details class="battle-settings" open><summary>Setup</summary>
+<label><span>Scenario</span><select id="scenario-select"><option value="GERMAN_CONVOY">German convoy</option><option value="BRITISH_CONVOY">British convoy</option><option value="ENCOUNTER">Warship encounter</option></select></label>
+<label><span>Visibility</span><select id="visibility-select"><option value="CLEAR">Clear</option><option value="MIST">Mist</option><option value="FOG">Fog</option><option value="NIGHT">Night</option></select></label>
+<label><span>Omit transport</span><select id="omitted-transport"><option value="4">4</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
+<div id="setup-controls">
+<p class="field-note">Select a vessel, then click its starting position.</p>
+<label><span>Heading</span><span class="input-unit"><input id="setup-heading" type="number" min="0" max="359" value="0"><small>°</small></span></label>
+<button id="place-british-patch" type="button">Place British patch</button>
+<button id="place-german-patch" type="button">Place German patch</button>
+</div>
+<button id="new-game-btn" class="quiet" type="button">New battle</button>
+</details>
+<button id="next-phase-btn" type="button">Begin battle</button>
+<div class="log-label">Log</div>
+<div id="log" role="log" aria-live="polite"></div>
+</div>
+</aside>
+</main>
+</div>
+<script src="mtb_data.js"></script>
+<script src="mtb_rules.js"></script>
+<script src="mtb_visuals.js"></script>
+<script src="mtb_game.js"></script>
+</body>
+</html>

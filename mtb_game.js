@@ -49,39 +49,58 @@ class Ship {
     draw(ctx, isSelected, isTarget) {
         if (this.isDestroyed || this.exited) return;
 
+        const w=this.type.size.width,l=this.type.size.length;
+        const artwork=typeof MTBVisuals!=='undefined'?MTBVisuals.image(this):null;
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate((this.heading * Math.PI) / 180);
-
-        const w=this.type.size.width,l=this.type.size.length;
-        const artwork=typeof MTBVisuals!=='undefined'?MTBVisuals.image(this):null;
-        // Paper footprint exactly matches the rules counter, not the hull silhouette.
-        ctx.shadowColor='#283d374d';ctx.shadowBlur=3;ctx.shadowOffsetX=2;ctx.shadowOffsetY=3;
-        ctx.fillStyle='#f8f1df';ctx.fillRect(-w/2,-l/2,w,l);
-        ctx.shadowColor='transparent';
+        ctx.shadowColor='rgba(20, 24, 22, 0.45)';
+        ctx.shadowBlur=0;
+        ctx.shadowOffsetX=2;
+        ctx.shadowOffsetY=3;
         if(artwork?.complete&&artwork.naturalWidth) ctx.drawImage(artwork,-w/2,-l/2,w,l);
-        else {ctx.strokeStyle='#52675e';ctx.strokeRect(-w/2,-l/2,w,l);}
-        if(isSelected||isTarget) {
-            ctx.strokeStyle=isTarget?'#a43e32':'#304e57';ctx.lineWidth=1.8;
-            ctx.setLineDash([5,3]);ctx.strokeRect(-w/2-4,-l/2-4,w+8,l+8);ctx.setLineDash([]);
+        else {
+            ctx.fillStyle='#f4f1ea';
+            ctx.fillRect(-w/2,-l/2,w,l);
+            ctx.shadowColor='transparent';
+            ctx.strokeStyle='#52675e';
+            ctx.strokeRect(-w/2,-l/2,w,l);
         }
+        ctx.shadowColor='transparent';
         if(this.currentSpeed>0) {
-            ctx.strokeStyle='#638b8070';ctx.lineWidth=.8;ctx.beginPath();
-            for(const side of [-1,1]) {ctx.moveTo(side*w/3,l/2+3);ctx.quadraticCurveTo(side*w/2,l/2+this.currentSpeed,side*w,l/2+this.currentSpeed*2);}
+            ctx.strokeStyle='rgba(55, 68, 64, 0.45)';
+            ctx.lineWidth=1;
+            ctx.beginPath();
+            for(const side of [-1,1]) {
+                ctx.moveTo(side*w/3,l/2+2);
+                ctx.quadraticCurveTo(side*w/2,l/2+this.currentSpeed*0.6,side*w*0.8,l/2+this.currentSpeed*1.3);
+            }
+            ctx.stroke();
+        }
+        if(isSelected||isTarget) {
+            const inset=3,tick=7;
+            const x0=-w/2-inset,y0=-l/2-inset,x1=w/2+inset,y1=l/2+inset;
+            ctx.strokeStyle=isTarget?'#9d342c':'#1c2826';
+            ctx.lineWidth=1.4;
+            ctx.beginPath();
+            ctx.moveTo(x0,y0+tick);ctx.lineTo(x0,y0);ctx.lineTo(x0+tick,y0);
+            ctx.moveTo(x1-tick,y0);ctx.lineTo(x1,y0);ctx.lineTo(x1,y0+tick);
+            ctx.moveTo(x0,y1-tick);ctx.lineTo(x0,y1);ctx.lineTo(x0+tick,y1);
+            ctx.moveTo(x1-tick,y1);ctx.lineTo(x1,y1);ctx.lineTo(x1,y1-tick);
             ctx.stroke();
         }
         if(this.isOnFire) {
             const fire=typeof MTBVisuals!=='undefined'?MTBVisuals.counters.fire:null;
-            if(fire?.complete&&fire.naturalWidth) ctx.drawImage(fire,w/2+3,-10,32,18);
-            else {ctx.fillStyle='#a43e32';ctx.fillRect(w/2+3,-8,12,16);}
+            if(fire?.complete&&fire.naturalWidth) ctx.drawImage(fire,w/2+2,-12,36,20);
+            else {ctx.fillStyle='#9d342c';ctx.fillRect(w/2+3,-8,12,16);}
         }
         ctx.restore();
-        if(isSelected||isTarget||this.currentBuoyancy<this.type.buoyancy) {
-            ctx.fillStyle='#b3ad98';ctx.fillRect(this.x-15,this.y-l/2-12,30,3);
-            ctx.fillStyle='#a43e32';ctx.fillRect(this.x-15,this.y-l/2-12,30*this.currentBuoyancy/this.type.buoyancy,3);
+        if(this.currentBuoyancy<this.startingBuoyancy) {
+            ctx.fillStyle='#9d342c';
+            ctx.font='12px "Courier New", monospace';
+            ctx.textAlign='left';
+            ctx.fillText(String(this.currentBuoyancy),this.x+w/2+6,this.y+4);
         }
-        ctx.fillStyle='#344b47';ctx.font='11px Courier New';ctx.textAlign='center';
-        ctx.fillText(`${this.type.name} ${this.id}`,this.x,this.y+l/2+15);
     }
 
     applyOrders() {
@@ -348,9 +367,9 @@ class Game {
             GAME_OVER: this.victory ? `${this.victory.winner} wins. Attacker ${this.victory.attackerScore} · Defender ${this.victory.defenderScore}` : 'Battle complete.'
         };
         document.getElementById('phase-help').textContent = help[this.phase] || '';
-        this.btnNextPhase.textContent = this.phase==='SETUP'?'Begin battle →':this.phase==='SIGHTING'?'Finish sightings →':this.phase === 'ORDERS' ? 'Confirm orders →' :
-            this.phase === 'FIRE_SECOND' ? 'Resolve attacks & end move →' :
-            this.phase === 'GAME_OVER' ? 'Battle complete' : 'Next stage →';
+        this.btnNextPhase.textContent = this.phase==='SETUP'?'Begin battle':this.phase==='SIGHTING'?'Finish sightings':this.phase === 'ORDERS' ? 'Confirm orders' :
+            this.phase === 'FIRE_SECOND' ? 'Resolve attacks' :
+            this.phase === 'GAME_OVER' ? 'Battle complete' : 'Next';
 
         if (this.selectedShip) {
             this.panelOrders.classList.remove('hidden');
@@ -1328,43 +1347,139 @@ class Game {
         this.log(`Ramming: #${rammer.id} into #${rammed.id}; damage ${rammerDamage}/${rammedDamage}.`);
     }
 
-    loop() {
-        this.ctx.fillStyle='#dce4dc';
-        this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
-        if(typeof MTBVisuals!=='undefined'&&MTBVisuals.chart?.complete&&MTBVisuals.chart.naturalWidth)
-            this.ctx.drawImage(MTBVisuals.chart,0,0,this.canvas.width,this.canvas.height);
+    drawPatch(ctx, patch) {
+        const x=patch.x-225, y=patch.y-225, size=450;
+        const fog=this.visibilityMode==='FOG';
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x, y, size, size);
+        ctx.clip();
+        ctx.strokeStyle=fog?'rgba(62, 78, 88, 0.4)':'rgba(80, 98, 106, 0.25)';
+        ctx.lineWidth=1;
+        for(let i=-size;i<size*2;i+=fog?9:16) {
+            ctx.beginPath();
+            ctx.moveTo(x+i, y);
+            ctx.lineTo(x+i+size, y+size);
+            ctx.stroke();
+        }
+        ctx.restore();
+        ctx.strokeStyle='rgba(50, 62, 66, 0.75)';
+        ctx.lineWidth=1;
+        ctx.strokeRect(x, y, size, size);
+        ctx.fillStyle='rgba(50, 62, 66, 0.85)';
+        ctx.font='11px "Courier New", monospace';
+        ctx.textAlign='left';
+        ctx.fillText(fog?`${patch.faction} fog`:`${patch.faction} mist`, x+8, y+16);
+    }
 
-        for(const patch of this.visibilityPatches) {
-            this.ctx.fillStyle=this.visibilityMode==='FOG'?'#b8c5ce88':'#c6d6df44';
-            this.ctx.fillRect(patch.x-225,patch.y-225,450,450);
+    drawCourse(ctx, ship) {
+        const path=ship.movementPath;
+        if(!path||path.length<2||ship.isDestroyed||ship.exited) return;
+        ctx.save();
+        ctx.strokeStyle='rgba(42, 52, 48, 0.55)';
+        ctx.lineWidth=1;
+        ctx.lineJoin='round';
+        ctx.lineCap='round';
+        ctx.beginPath();
+        ctx.arc(path[0].x, path[0].y, 2.2, 0, Math.PI*2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(path[0].x, path[0].y);
+        for(let i=1;i<path.length;i++) {
+            const prev=path[i-1], point=path[i];
+            if(point.arc) {
+                const radius=Math.hypot(prev.x-point.arc.center.x, prev.y-point.arc.center.y);
+                if(radius>0.5) ctx.arc(point.arc.center.x, point.arc.center.y, radius, point.arc.start, point.arc.start+point.arc.sweep, point.arc.sweep<0);
+                else ctx.lineTo(point.x, point.y);
+            } else ctx.lineTo(point.x, point.y);
         }
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    drawContact(ctx, ship) {
+        ctx.save();
+        ctx.translate(ship.x, ship.y);
+        ctx.rotate(ship.heading*Math.PI/180);
+        ctx.shadowColor='rgba(20, 24, 22, 0.35)';
+        ctx.shadowOffsetX=2;
+        ctx.shadowOffsetY=3;
+        ctx.fillStyle='#f7f4ec';
+        ctx.fillRect(-12.5, -25, 25, 50);
+        ctx.shadowColor='transparent';
+        ctx.strokeStyle='#5c564c';
+        ctx.lineWidth=1;
+        ctx.strokeRect(-12.5, -25, 25, 50);
+        ctx.fillStyle='#5c564c';
+        ctx.font='16px Georgia, serif';
+        ctx.textAlign='center';
+        ctx.fillText('?', 0, 6);
+        ctx.restore();
+        ctx.fillStyle='#5c564c';
+        ctx.font='11px "Courier New", monospace';
+        ctx.textAlign='center';
+        ctx.fillText(String(ship.id), ship.x, ship.y+36);
+    }
+
+    loop() {
+        const ctx=this.ctx;
+        ctx.fillStyle='#dce4dc';
+        ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
+        if(typeof MTBVisuals!=='undefined'&&MTBVisuals.chart?.complete&&MTBVisuals.chart.naturalWidth)
+            ctx.drawImage(MTBVisuals.chart,0,0,this.canvas.width,this.canvas.height);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(22, 22, this.canvas.width-44, this.canvas.height-44);
+        ctx.clip();
+        ctx.strokeStyle='rgba(70, 96, 90, 0.16)';
+        ctx.lineWidth=1;
+        ctx.beginPath();
+        for(let x=50;x<this.canvas.width;x+=50) { ctx.moveTo(x, 0); ctx.lineTo(x, this.canvas.height); }
+        for(let y=50;y<this.canvas.height;y+=50) { ctx.moveTo(0, y); ctx.lineTo(this.canvas.width, y); }
+        ctx.stroke();
+        ctx.restore();
+
+        for(const patch of this.visibilityPatches) this.drawPatch(ctx, patch);
         for(const area of this.illuminationAreas.filter(a=>a.expires>=this.turn)) {
-            this.ctx.fillStyle='#edc78744'; this.ctx.beginPath();this.ctx.arc(area.x,area.y,area.radius,0,Math.PI*2);this.ctx.fill();
+            ctx.beginPath();
+            ctx.arc(area.x, area.y, area.radius, 0, Math.PI*2);
+            ctx.fillStyle='rgba(214, 186, 120, 0.16)';
+            ctx.fill();
+            ctx.strokeStyle='rgba(120, 96, 48, 0.55)';
+            ctx.lineWidth=1;
+            ctx.stroke();
         }
-        // Launch markers remain at the stern position before movement.
-        this.ctx.fillStyle = '#a43e32';
-        this.ctx.font = '11px sans-serif';
-        for (const order of this.torpedoOrders) {
-            this.ctx.fillRect(order.marker.x - 4, order.marker.y - 4, 8, 8);
-            this.ctx.fillText(`T${order.ship.id}`, order.marker.x + 8, order.marker.y);
+        for(const ship of this.ships) this.drawCourse(ctx, ship);
+
+        const marker=typeof MTBVisuals!=='undefined'?MTBVisuals.counters.torpedo:null;
+        ctx.font='10px "Courier New", monospace';
+        ctx.textAlign='center';
+        ctx.fillStyle='#3e4744';
+        for(const order of this.torpedoOrders) {
+            if(marker?.complete&&marker.naturalWidth) ctx.drawImage(marker, order.marker.x-16, order.marker.y-11, 32, 22);
+            else { ctx.strokeStyle='#1c2826'; ctx.strokeRect(order.marker.x-8, order.marker.y-6, 16, 12); }
+            ctx.fillText(String(order.ship.id), order.marker.x, order.marker.y+22);
         }
-        this.ctx.strokeStyle = '#536d69';
-        this.ctx.beginPath();
-        this.ctx.moveTo(65, 1090); this.ctx.lineTo(190, 1090);
-        this.ctx.stroke();
-        this.ctx.fillStyle = '#536d69';
-        this.ctx.font = '11px sans-serif';
-        this.ctx.fillText('50 yards', 65, 1110);
-        // Draw Ships
+
+        const x0=1180, y0=1162;
+        ctx.strokeStyle='#3e4a46';
+        ctx.lineWidth=1;
+        ctx.beginPath();
+        ctx.moveTo(x0, y0); ctx.lineTo(x0+125, y0);
+        ctx.moveTo(x0, y0-4); ctx.lineTo(x0, y0+4);
+        ctx.moveTo(x0+125, y0-4); ctx.lineTo(x0+125, y0+4);
+        ctx.stroke();
+        ctx.font='11px "Courier New", monospace';
+        ctx.textAlign='left';
+        ctx.fillStyle='#3e4a46';
+        ctx.fillText('50 yards', x0, y0-8);
+
         this.ships.forEach(ship => {
-            const isSelected = this.selectedShip === ship;
-            const isTarget = this.selectedTarget === ship;
-            if(this.identifiedFor(this.viewFaction,ship)) ship.draw(this.ctx,isSelected,isTarget);
-            else if(!ship.isDestroyed&&!ship.exited) {
-                this.ctx.save();this.ctx.translate(ship.x,ship.y);this.ctx.rotate(ship.heading*Math.PI/180);
-                this.ctx.fillStyle='#8b9383';this.ctx.fillRect(-12.5,-25,25,50);this.ctx.restore();
-                this.ctx.fillStyle='#344b47';this.ctx.fillText(`Contact #${ship.id}`,ship.x,ship.y+35);
-            }
+            const isSelected=this.selectedShip===ship;
+            const isTarget=this.selectedTarget===ship;
+            if(this.identifiedFor(this.viewFaction,ship)) ship.draw(ctx, isSelected, isTarget);
+            else if(!ship.isDestroyed&&!ship.exited) this.drawContact(ctx, ship);
         });
 
         requestAnimationFrame(() => this.loop());
